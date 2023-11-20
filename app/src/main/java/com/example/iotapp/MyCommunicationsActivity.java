@@ -13,7 +13,9 @@ package com.example.iotapp;
 
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class MyCommunicationsActivity extends CommunicationsActivity {
@@ -22,21 +24,25 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
 
     private TextView mMessageTextView;
     private SeekBar mSpeedSeekBar;
+    private Spinner spinnerHoraris;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
-        mMessageTextView = (TextView)findViewById(R.id.serverReplyText);
-
         mSpeedSeekBar = (SeekBar)findViewById(R.id.seekBar);
+        spinnerHoraris = findViewById(R.id.spinner_horaris);
+        ArrayAdapter<CharSequence>adapter=ArrayAdapter.createFromResource(this, R.array.zones_horaries, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+
+        spinnerHoraris.setAdapter(adapter);
+
 
         mSpeedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-                if (fromUser==true) {
+                System.out.println(progress);
+                /*if (fromUser==true) {
 
                     for (byte b : String.valueOf(progress).getBytes()) {
                         mBluetoothConnection.write(b);
@@ -58,7 +64,7 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
                             mMessageFromServer += c;
                         }
                     }
-                }
+                }*/
             }
 
             @Override

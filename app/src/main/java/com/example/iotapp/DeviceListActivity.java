@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.fragment.NavHostFragment;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -27,6 +29,7 @@ public class DeviceListActivity extends AppCompatActivity {
     private static final int BLUETOOTH_ENABLE_REQUEST_CODE = 2; // Use a different request code for Bluetooth enable
 
     ListView mDeviceList;
+    Button mButton;
     private BluetoothAdapter mBluetoothAdapter = null;
     private Set<BluetoothDevice> mPairedDevices;
 
@@ -39,6 +42,15 @@ public class DeviceListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_list);
 
         mDeviceList = findViewById(R.id.listView);
+        mButton = findViewById(R.id.button_first2);
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(DeviceListActivity.this, MyCommunicationsActivity.class);
+                startActivity(i);
+            }
+        });
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -46,12 +58,16 @@ public class DeviceListActivity extends AppCompatActivity {
             finish();
         } else {
             if (mBluetoothAdapter.isEnabled()) {
+                System.out.println("List pair devices");
+                requestBluetoothPermissionAndEnable();
+
                 listPairedDevices();
             } else {
                 // Ask the user to turn Bluetooth on
                 requestBluetoothPermissionAndEnable();
             }
         }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -83,8 +99,11 @@ public class DeviceListActivity extends AppCompatActivity {
     private void requestBluetoothPermissionAndEnable() {
         if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
             // Permission not granted, request it
+            System.out.println("Demanem permis");
             requestPermissions(new String[]{Manifest.permission.BLUETOOTH_ADMIN}, BLUETOOTH_PERMISSION_REQUEST_CODE);
         } else {
+            System.out.println("Cridem enableBluetooth");
+
             // Permission already granted, proceed with Bluetooth enabling
             enableBluetooth();
         }
@@ -94,11 +113,14 @@ public class DeviceListActivity extends AppCompatActivity {
     private void enableBluetooth() {
         // Check if the app has the BLUETOOTH_ADMIN permission
         if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED) {
-            // Permission is granted, proceed with Bluetooth enabling
+            // Permission is granted, proceed with Bluetooth enabling4
+            System.out.println("No demanem permis");
+
             Intent turnBTon = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(turnBTon, BLUETOOTH_ENABLE_REQUEST_CODE);
         } else {
             // Permission is not granted, request it
+            System.out.println("Demanem permis");
             requestPermissions(new String[]{Manifest.permission.BLUETOOTH_ADMIN}, BLUETOOTH_PERMISSION_REQUEST_CODE);
         }
     }
@@ -122,12 +144,13 @@ public class DeviceListActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == BLUETOOTH_PERMISSION_REQUEST_CODE) {
+
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, proceed with Bluetooth enabling
                 enableBluetooth();
             } else {
                 // Permission denied, handle accordingly (e.g., show a message to the user)
-                Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Bluetooth permission denied123", Toast.LENGTH_SHORT).show();
             }
         }
     }
