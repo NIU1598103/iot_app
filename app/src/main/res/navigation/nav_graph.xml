@@ -25,11 +25,22 @@
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
         <action
-            android:id="@+id/action_SecondFragment_to_myCommunicationsActivity"
-            app:destination="@id/myCommunicationsActivity" />
+            android:id="@+id/action_SecondFragment_to_deviceListActivity"
+            app:destination="@id/deviceListActivity" />
     </fragment>
+
+
+
+
     <activity
         android:id="@+id/myCommunicationsActivity"
         android:name="com.example.iotapp.MyCommunicationsActivity"
-        android:label="MyCommunicationsActivity" />
+        android:label="MyCommunicationsActivity"
+        tools:layout="@layout/activity_communications"
+    />
+    <activity
+        android:id="@+id/deviceListActivity"
+        android:name="com.example.iotapp.DeviceListActivity"
+        android:label="DeviceListActivity"
+        tools:layout="@layout/activity_device_list" />
 </navigation>

@@ -51,18 +51,21 @@ public class CommunicationsTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... devices) { //while the progress dialog is shown, the connection is done in background
 
-        try {
-            if (mBluetoothSocket == null || !mConnected) {
-                mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mAddress);//connects to the device's address and checks if it's available
-                
-                mBluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
-                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                mBluetoothSocket.connect();//start connection
+        if (checkBluetoothPermission()) {
+            try {
+                if (mBluetoothSocket == null || !mConnected) {
+                    mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); // get the mobile Bluetooth device
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mAddress); // connects to the device's address and checks if it's available
+
+                    mBluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(myUUID); // create an RFCOMM (SPP) connection
+                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                    mBluetoothSocket.connect(); // start connection
+                }
+            } catch (IOException e) {
+                mConnected = false; // if the try failed, you can check the exception here
             }
-        }
-        catch (IOException e) {
-            mConnected = false;//if the try failed, you can check the exception here
+        } else {
+            mConnected = false;
         }
         return null;
     }
@@ -136,6 +139,12 @@ public class CommunicationsTask extends AsyncTask<Void, Void, Void> {
 
     private void message(String s) {
         Toast.makeText(mCurrentActivity.getApplicationContext(),s, Toast.LENGTH_LONG).show();
+    }
+
+    private boolean checkBluetoothPermission() {
+        int bluetoothPermission = ActivityCompat.checkSelfPermission(mCurrentActivity, Manifest.permission.BLUETOOTH);
+
+        return bluetoothPermission == PackageManager.PERMISSION_GRANTED;
     }
 
 }
