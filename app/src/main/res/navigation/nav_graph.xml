@@ -44,8 +44,8 @@
         tools:layout="@layout/activity_login" />
     <activity
         android:id="@+id/userConfigActivity"
-        android:name="com.example.iotapp.LoginActivity"
-        android:label="UserSettingsActivity"
+        android:name="com.example.iotapp.UserConfigActivity"
+        android:label="UserConfigActivity"
         tools:layout="@layout/activity_userconfig" />
     <activity
         android:id="@+id/myCommunicationsActivity"

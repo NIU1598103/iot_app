@@ -2,22 +2,25 @@ package com.example.iotapp;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.iotapp.data.UserData;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 public class UserConfigActivity extends AppCompatActivity {
-    private FirebaseFirestore db;
+
+    private Button homeBtn;
+
+    private EditText phoneInput, nameInput, plateInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -25,23 +28,47 @@ public class UserConfigActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userconfig);
 
+        homeBtn = findViewById(R.id.btnHome);
+        phoneInput = findViewById(R.id.phoneInput);
+        nameInput = findViewById(R.id.nameInput);
+        plateInput = findViewById(R.id.plateInput);
+        homeBtn.setOnClickListener(v -> navigateHome());
+
         // Firestore
-        db = FirebaseFirestore.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        String userIdTest = "BTXjuEDz5Gc6yFX8XyJimcrlw0Y2";
+        String userId = UserData.getInstance().getUserId();
 
-        db.collection("users")
-                .whereEqualTo("id", userIdTest).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+        if (userId == null) {
+            navigateHome();
+        } else {
+            db.collection("users")
+                    .whereEqualTo("id", userId).get()
+                    .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            DocumentSnapshot user = task.getResult().getDocuments().get(0);
-                            Log.d(TAG, "user: " + user.getData());
+                            List<DocumentSnapshot> documents = task.getResult().getDocuments();
+
+                            if (documents.isEmpty()) {
+                                Log.d(TAG, "No results");
+                                return;
+                            }
+
+                            DocumentSnapshot userData = documents.get(0);
+
+                            Log.d(TAG, "userdata: " + userData.getData());
+
+                            phoneInput.setText((CharSequence) userData.get("phone"));
+                            nameInput.setText((CharSequence) userData.get("name"));
+                            plateInput.setText((CharSequence) userData.get("numberplate"));
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
-                    }
-                });
+                    });
+        }
+    }
+
+    private void navigateHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }

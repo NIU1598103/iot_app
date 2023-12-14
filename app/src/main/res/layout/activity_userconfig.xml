@@ -12,39 +12,71 @@
     android:orientation="vertical"
     android:padding="15dp"
     tools:context=".UserConfigActivity">
-      
-    <!-- TextView for heading -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User Data" />
-          
-    <!-- Edit text for email -->
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter your Email" /> 
-          
-    <!-- Edit text for password -->
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter your Password"
-        android:inputType="textPassword" /> 
-          
-    <!-- Button for Login with text "Login" -->
-    <Button
-        android:id="@+id/login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login" /> 
-          
-    <!-- ProgressBar for Loading Time -->
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" /> 
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Data"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/nameTag"
+        android:layout_width="148dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Name:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name" />
+
+    <TextView
+        android:id="@+id/phoneTag"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Phone number:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/phoneInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Phone number" />
+
+    <TextView
+        android:id="@+id/plateTag"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Number plate:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/plateInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name" />
+
+    <Button
+        android:id="@+id/btnHome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Home" />
 </LinearLayout> 

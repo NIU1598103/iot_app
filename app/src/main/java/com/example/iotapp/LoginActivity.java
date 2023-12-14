@@ -1,20 +1,26 @@
 package com.example.iotapp;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.widget.Button;
 
+import com.example.iotapp.data.UserData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -23,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressbar;
 
     private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -86,8 +93,11 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(getApplicationContext(),
                                                     "Login successful!!",
-                                                    Toast.LENGTH_LONG)
-                                            .show();
+                                                    Toast.LENGTH_LONG).show();
+
+                                    Log.d(TAG, "user: " + Objects.requireNonNull(task.getResult().getUser()).getUid());
+
+                                    UserData.getInstance().setUserId(task.getResult().getUser().getUid());
 
                                     // hide the progress bar
                                     progressbar.setVisibility(View.GONE);
@@ -96,10 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                                     // intent to home activity
                                     Intent intent = new Intent(LoginActivity.this, UserConfigActivity.class);
                                     startActivity(intent);
-                                }
-
-                                else {
-
+                                } else {
                                     // sign-in failed
                                     Toast.makeText(getApplicationContext(),
                                                     "Login failed!!",
