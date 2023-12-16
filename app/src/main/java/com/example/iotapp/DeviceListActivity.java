@@ -74,7 +74,9 @@ public class DeviceListActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
                 }
-
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN);
+                }
                 listPairedDevices();
             } else {
                 // Ask the user to turn Bluetooth on
