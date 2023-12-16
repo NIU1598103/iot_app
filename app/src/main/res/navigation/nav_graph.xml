@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_FirstFragment_to_loginActivity"
             app:destination="@id/loginActivity" />
+        <action
+            android:id="@+id/action_FirstFragment_to_userConfigActivity"
+            app:destination="@id/userConfigActivity" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -39,6 +42,11 @@
         android:name="com.example.iotapp.LoginActivity"
         android:label="LoginActivity"
         tools:layout="@layout/activity_login" />
+    <activity
+        android:id="@+id/userConfigActivity"
+        android:name="com.example.iotapp.UserConfigActivity"
+        android:label="UserConfigActivity"
+        tools:layout="@layout/activity_userconfig" />
     <activity
         android:id="@+id/myCommunicationsActivity"
         android:name="com.example.iotapp.MyCommunicationsActivity"

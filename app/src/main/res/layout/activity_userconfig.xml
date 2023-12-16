@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<!-- Linear Layout with vertical orientation and other properties -->
+  
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+      
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="15dp"
+    tools:context=".UserConfigActivity">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Data"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/nameTag"
+        android:layout_width="148dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Name:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name" />
+
+    <TextView
+        android:id="@+id/phoneTag"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Phone number:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/phoneInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Phone number" />
+
+    <TextView
+        android:id="@+id/plateTag"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Number plate:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/plateInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name" />
+
+    <Button
+        android:id="@+id/btnHome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Home" />
+</LinearLayout> 
