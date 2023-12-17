@@ -14,15 +14,19 @@ package com.example.iotapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.bluetooth.BluetoothDevice;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.iotapp.bt.BtHandler;
+import com.example.iotapp.bt.MyBleManager;
 
 public abstract class CommunicationsActivity extends AppCompatActivity {
 
 
     private String mDeviceAddress;
-    protected CommunicationsTask mBluetoothConnection;
+    private BtHandler mBtHandler;
+    protected MyBleManager mBleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +40,15 @@ public abstract class CommunicationsActivity extends AppCompatActivity {
         mDeviceAddress = newint.getStringExtra(DeviceListActivity.EXTRA_ADDRESS);
 
         // Create a connection to this device
-        mBluetoothConnection = new CommunicationsTask(this, mDeviceAddress);
-        mBluetoothConnection.execute();
+        mBtHandler = BtHandler.getInstance();
+        BluetoothDevice device = mBtHandler.getBtDeviceByAddress(mDeviceAddress);
+
+        mBleManager = new MyBleManager(this);
+        mBleManager.connectToDevice(device);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-       mBluetoothConnection.disconnect();
     }
 }
