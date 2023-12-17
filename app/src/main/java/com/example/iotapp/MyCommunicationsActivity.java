@@ -28,8 +28,6 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
 
     private String mMessageFromServer = "";
 
-    private BtHandler mBtHandler;
-
     private TextView mPlateText;
 
     private SeekBar mCameraBar;
@@ -41,16 +39,16 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
     private Runnable mainRunnable;
 
     private void readBtData() {
-        if (!mBtHandler.isConnected()) {
+        if (!mBleManager.isConnectedAndSetup()) {
             return;
         }
 
-        mBtHandler.mockReadNumberplate();
+        mBleManager.mockReadNumberplate();
         Log("READING BT DATA");
 
-        mMessageFromServer += mBtHandler.getDataIfAvailable();
+        mMessageFromServer += mBleManager.getDataIfAvailable();
 
-        if (mMessageFromServer.substring(mMessageFromServer.length() - 1) == ".") {
+        if (mMessageFromServer.substring(mMessageFromServer.length() - 1).equals(".")) {
             Log("Received full numberplate: " + mMessageFromServer);
             String numberPlate = mMessageFromServer.substring(0, mMessageFromServer.length() - 1);
             mPlateText.setText(numberPlate);
@@ -72,8 +70,6 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
 
         spinnerHoraris.setAdapter(adapter);
-
-        mBtHandler = BtHandler.getInstance();
 
         mainHandler = new Handler(Looper.getMainLooper());
 
@@ -149,12 +145,12 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
     }
 
     private void sendSliderValue(byte command, byte value) {
-        if (!mBtHandler.isConnected()) {
+        if (!mBleManager.isConnectedAndSetup()) {
             return;
         }
-        
-        mBtHandler.writeData(command);
-        mBtHandler.writeData(value);
+
+        mBleManager.writeData(command);
+        mBleManager.writeData(value);
     }
 
     @Override

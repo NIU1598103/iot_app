@@ -6,14 +6,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -28,20 +21,14 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class BtHandler {
     private static BtHandler sInstance;
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothGatt bluetoothGatt;
-    private BluetoothGattCharacteristic btCharacteristic;
     private ScanCallback mScanCB;
     private ArrayList<BluetoothDevice> btDevices = new ArrayList<>();
-    private boolean dataAvailable = false;
-    private byte[] availableData;
 
     private BtHandler() {}
 
@@ -69,7 +56,7 @@ public class BtHandler {
                     if (report.isAnyPermissionPermanentlyDenied()) {
                         List<PermissionDeniedResponse> a = report.getDeniedPermissionResponses();
                         for (PermissionDeniedResponse item : a) {
-                            Log("Missing permission: " + item.getPermissionName())
+                            Log("Missing permission: " + item.getPermissionName());
                         }
 
                         startScanningDevices(ctx);
@@ -81,6 +68,9 @@ public class BtHandler {
                     token.continuePermissionRequest();
                 }
             }).check();
+        } else {
+            // has permissions
+            startScanningDevices(ctx);
         }
     }
 
@@ -130,135 +120,13 @@ public class BtHandler {
         return null;
     }
 
-    @SuppressLint("MissingPermission")
-    public void connectToDevice(BluetoothDevice device, Context ctx) {
-        BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
-            @SuppressLint("MissingPermission")
-            @Override
-            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                Log("onConnectionStateChange status: " + status + " newState:" + newState);
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        // will trigger onServicesDiscovered
-                        bluetoothGatt.discoverServices();
-                    } else {
-                        gatt.close();
-                        Log("GATT DISCONNECTED");
-                    }
-                }
-            }
-
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    // DEVICE SERVICES
-                    Log("Looking for services");
-                    List<BluetoothGattService> gattServices = bluetoothGatt.getServices();
-                    BluetoothGattService foundService = null;
-                    for (BluetoothGattService gattServiceItem : gattServices) {
-                        UUID uuid = gattServiceItem.getUuid();
-                        Log("UUID (service): " + uuid.toString());
-                        foundService = gattServiceItem;
-                    }
-                    if (foundService == null) {
-                        Log("No service found");
-                    } else {
-                        Log("Amount of services found: " + gattServices.size());
-                        btCharacteristic = new BluetoothGattCharacteristic(UUID.fromString("19b10001e8f2537e4f6cd104768a1215"));
-                    }
-                } else {
-                    Log("Could not discover services");
-                }
-            }
-
-            @Override
-            public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
-                super.onCharacteristicRead(gatt, characteristic, value, status);
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log("Read data successfully");
-                    Log("Data => " + value);
-                    availableData = value;
-                    dataAvailable = true;
-                } else {
-                    Log("Failed to read data");
-                }
-            }
-
-            @Override
-            public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                switch (status) {
-                    case BluetoothGatt.GATT_SUCCESS: {
-                        break;
-                    }
-                    case BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED: {
-                        Log("GATT_REQUEST_NOT_SUPPORTED");
-                        break;
-                    }
-                    case BluetoothGatt.GATT_READ_NOT_PERMITTED: {
-                        Log("GATT_READ_NOT_PERMITTED");
-                        break;
-                    }
-                    case BluetoothGatt.GATT_WRITE_NOT_PERMITTED: {
-                        Log("GATT_WRITE_NOT_PERMITTED");
-                        break;
-                    }
-                    default: {
-                        Log("BT Characteristic fail");
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                super.onDescriptorWrite(gatt, descriptor, status);
-                Log("onDescriptorWrite");
-                if (status != BluetoothGatt.GATT_SUCCESS) {
-                    return;
-                }
-            }
-
-            @Override
-            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-                //byte[] data = characteristic.getValue();
-                Log("onCharacteristicChanged");
-            }
-        };
-
-        bluetoothGatt = device.connectGatt(ctx, false, gattCallback);
-    }
-
-    public boolean isConnected() {
-        return btCharacteristic != null;
-    }
-
-    public String getDataIfAvailable() {
-        if (dataAvailable) {
-            dataAvailable = false;
-            return new String(availableData, StandardCharsets.UTF_8);
-        }
-
-        return "";
-    }
-
-    @SuppressLint("MissingPermission")
-    public void mockReadNumberplate() {
-        bluetoothGatt.readCharacteristic(btCharacteristic);
-    }
-
-    @SuppressLint("MissingPermission")
-    public void writeData(byte data) {
-        byte[] value = new byte[]{data};
-        bluetoothGatt.writeCharacteristic(btCharacteristic, value, WRITE_TYPE_NO_RESPONSE);
-    }
-
     private boolean hasPermissions(Context ctx) {
         return (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ContextCompat.checkSelfPermission(ctx, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) &&
                     (ContextCompat.checkSelfPermission(ctx, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED);
     }
-    
+
     private boolean deviceExists(BluetoothDevice device) {
         for (BluetoothDevice item : btDevices) {
             if (item.getAddress().equals(device.getAddress())) {

@@ -19,12 +19,14 @@ import android.bluetooth.BluetoothDevice;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.iotapp.bt.BtHandler;
+import com.example.iotapp.bt.MyBleManager;
 
 public abstract class CommunicationsActivity extends AppCompatActivity {
 
 
     private String mDeviceAddress;
     private BtHandler mBtHandler;
+    protected MyBleManager mBleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,9 @@ public abstract class CommunicationsActivity extends AppCompatActivity {
         // Create a connection to this device
         mBtHandler = BtHandler.getInstance();
         BluetoothDevice device = mBtHandler.getBtDeviceByAddress(mDeviceAddress);
-        BtHandler.getInstance().connectToDevice(device, this);
+
+        mBleManager = new MyBleManager(this);
+        mBleManager.connectToDevice(device);
     }
 
     @Override

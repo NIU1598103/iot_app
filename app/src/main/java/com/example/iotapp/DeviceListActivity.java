@@ -103,6 +103,8 @@ public class DeviceListActivity extends AppCompatActivity {
             list.add(btDevice.getName() + "\n" + btDevice.getAddress());
         }
 
+        list.add("Test device\n00:11:22:AA:BB:CC");
+
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         mDeviceList.setAdapter(adapter);
         mDeviceList.setOnItemClickListener(myListClickListener);
