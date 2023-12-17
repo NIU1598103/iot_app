@@ -1,12 +1,15 @@
 package com.example.iotapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,13 +28,15 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import static com.example.iotapp.LogHandler.Log;
 
+import com.example.iotapp.bt.BtHandler;
+
 import java.util.ArrayList;
 import java.util.Set;
 
 public class DeviceListActivity extends AppCompatActivity {
 
-    private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 1;
-    private static final int BLUETOOTH_ENABLE_REQUEST_CODE = 2; // Use a different request code for Bluetooth enable
+    //private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 1;
+    //private static final int BLUETOOTH_ENABLE_REQUEST_CODE = 2; // Use a different request code for Bluetooth enable
 
     private ListView mDeviceList;
     // Button mButton;
@@ -69,12 +74,12 @@ public class DeviceListActivity extends AppCompatActivity {
         // });
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
+        if (mBluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "Bluetooth Device Not Available", Toast.LENGTH_LONG).show();
         } else {
             mBtHandler = BtHandler.getInstance();
 
-            mBtHandler.requestPermissionsAndScan();
+            mBtHandler.requestPermissionsAndScan(this);
 
             refreshHandler = new Handler(Looper.getMainLooper());
 
@@ -90,6 +95,7 @@ public class DeviceListActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void setBtDevicesList(ArrayList<BluetoothDevice> devices) {
         ArrayList<String> list = new ArrayList<>();
         

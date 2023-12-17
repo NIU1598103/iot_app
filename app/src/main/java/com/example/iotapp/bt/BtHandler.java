@@ -2,6 +2,37 @@ package com.example.iotapp.bt;
 
 import static com.example.iotapp.LogHandler.Log;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
+import android.content.Context;
+import android.content.pm.PackageManager;
+
+import androidx.core.content.ContextCompat;
+
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class BtHandler {
     private static BtHandler sInstance;
     private BluetoothAdapter bluetoothAdapter;
@@ -22,17 +53,17 @@ public class BtHandler {
         return sInstance;
     }
 
-    public void requestPermissionsAndScan() {
-        if (!hasPermissions()) {
+    public void requestPermissionsAndScan(Context ctx) {
+        if (!hasPermissions(ctx)) {
             String[] permissionArr = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN};
-            
-            Dexter.withContext(this).withPermissions(permissionArr).withListener(new MultiplePermissionsListener() {
+
+            Dexter.withContext(ctx).withPermissions(permissionArr).withListener(new MultiplePermissionsListener() {
                 @Override
                 public void onPermissionsChecked(MultiplePermissionsReport report) {
                     if (report.areAllPermissionsGranted()) {
                         Log("All permissions granted");
 
-                        startScanningDevices();
+                        startScanningDevices(ctx);
                     }
 
                     if (report.isAnyPermissionPermanentlyDenied()) {
@@ -41,7 +72,7 @@ public class BtHandler {
                             Log("Missing permission: " + item.getPermissionName())
                         }
 
-                        startScanningDevices();
+                        startScanningDevices(ctx);
                     }
                 }
 
@@ -53,27 +84,28 @@ public class BtHandler {
         }
     }
 
-    private void startScanningDevices() {
+    @SuppressLint("MissingPermission")
+    private void startScanningDevices(Context ctx) {
         mScanCB = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 super.onScanResult(callbackType, result);
                 BluetoothDevice device = result.getDevice();
-                String deviceName = device.getName();
-                
+                @SuppressLint("MissingPermission") String deviceName = device.getName();
+
                 if (deviceName == null) {
                     return;
                 }
 
-                LogI("New device discovered: " + deviceName + " - address: " + device.getAddress());
-                
+                Log("New device discovered: " + deviceName + " - address: " + device.getAddress());
+
                 if (!deviceExists(device)) {
                     btDevices.add(device);
                 }
             }
         };
 
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager)ctx.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         bluetoothAdapter.getBluetoothLeScanner().startScan(mScanCB);
     }
@@ -82,6 +114,7 @@ public class BtHandler {
         return btDevices;
     }
 
+    @SuppressLint("MissingPermission")
     public void stopScanningDevices() {
         Log("Stop scanning devices");
         bluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCB);
@@ -97,8 +130,10 @@ public class BtHandler {
         return null;
     }
 
-    public void connectToDevice(BluetoothDevice device) {
+    @SuppressLint("MissingPermission")
+    public void connectToDevice(BluetoothDevice device, Context ctx) {
         BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 Log("onConnectionStateChange status: " + status + " newState:" + newState);
@@ -127,10 +162,9 @@ public class BtHandler {
                     }
                     if (foundService == null) {
                         Log("No service found");
-                        return;
                     } else {
                         Log("Amount of services found: " + gattServices.size());
-                        btCharacteristic = new BluetoothGattCharacteristic("19b10001e8f2537e4f6cd104768a1215");
+                        btCharacteristic = new BluetoothGattCharacteristic(UUID.fromString("19b10001e8f2537e4f6cd104768a1215"));
                     }
                 } else {
                     Log("Could not discover services");
@@ -191,7 +225,7 @@ public class BtHandler {
             }
         };
 
-        bluetoothGatt = device.connectGatt(this, false, gattCallback);
+        bluetoothGatt = device.connectGatt(ctx, false, gattCallback);
     }
 
     public boolean isConnected() {
@@ -207,20 +241,22 @@ public class BtHandler {
         return "";
     }
 
+    @SuppressLint("MissingPermission")
     public void mockReadNumberplate() {
         bluetoothGatt.readCharacteristic(btCharacteristic);
     }
 
+    @SuppressLint("MissingPermission")
     public void writeData(byte data) {
         byte[] value = new byte[]{data};
-        bluetoothGatt.writeCharacteristic(btCharacteristic, value, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        bluetoothGatt.writeCharacteristic(btCharacteristic, value, WRITE_TYPE_NO_RESPONSE);
     }
 
-    private boolean hasPermissions() {
-        return (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
-                    (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
-                    (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) &&
-                    (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED);
+    private boolean hasPermissions(Context ctx) {
+        return (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                    (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                    (ContextCompat.checkSelfPermission(ctx, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) &&
+                    (ContextCompat.checkSelfPermission(ctx, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED);
     }
     
     private boolean deviceExists(BluetoothDevice device) {

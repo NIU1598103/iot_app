@@ -21,6 +21,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import static com.example.iotapp.LogHandler.Log;
 
+import com.example.iotapp.bt.BtHandler;
+import com.example.iotapp.data.CloudLogs;
+
 public class MyCommunicationsActivity extends CommunicationsActivity {
 
     private String mMessageFromServer = "";
@@ -48,7 +51,7 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
         mMessageFromServer += mBtHandler.getDataIfAvailable();
 
         if (mMessageFromServer.substring(mMessageFromServer.length() - 1) == ".") {
-            Log("Received full numberplate: " + mMessageFromServer)
+            Log("Received full numberplate: " + mMessageFromServer);
             String numberPlate = mMessageFromServer.substring(0, mMessageFromServer.length() - 1);
             mPlateText.setText(numberPlate);
 

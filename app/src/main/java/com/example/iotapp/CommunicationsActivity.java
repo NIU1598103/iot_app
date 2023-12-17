@@ -14,9 +14,11 @@ package com.example.iotapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.bluetooth.BluetoothDevice;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.iotapp.bt.BtHandler;
 
 public abstract class CommunicationsActivity extends AppCompatActivity {
 
@@ -37,8 +39,8 @@ public abstract class CommunicationsActivity extends AppCompatActivity {
 
         // Create a connection to this device
         mBtHandler = BtHandler.getInstance();
-        BluetoothDevice = mBtHandler.getBtDeviceByAddress(mDeviceAddress);
-        BtHandler.getInstance().connectToDevice(BluetoothDevice);
+        BluetoothDevice device = mBtHandler.getBtDeviceByAddress(mDeviceAddress);
+        BtHandler.getInstance().connectToDevice(device, this);
     }
 
     @Override
