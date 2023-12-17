@@ -19,10 +19,13 @@ import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import static com.example.iotapp.LogHandler.Log;
 
 public class MyCommunicationsActivity extends CommunicationsActivity {
 
     private String mMessageFromServer = "";
+
+    private BtHandler mBtHandler;
 
     private TextView mPlateText;
 
@@ -31,20 +34,25 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
     private SeekBar mTempBar;
     private Spinner spinnerHoraris;
 
-    private void readBtData() {
-        System.out.println("READING BT DATA");
-        while (mBluetoothConnection.available() > 0) {
-            char c = (char)mBluetoothConnection.read();
+    private Handler mainHandler;
+    private Runnable mainRunnable;
 
-            if (c == '.') {
-                if (mMessageFromServer.length() > 0) {
-                    mPlateText.setText(mMessageFromServer);
-                    mMessageFromServer = "";
-                }
-            }
-            else {
-                mMessageFromServer += c;
-            }
+    private void readBtData() {
+        if (!mBtHandler.isConnected()) {
+            return;
+        }
+
+        mBtHandler.mockReadNumberplate();
+        Log("READING BT DATA");
+
+        mMessageFromServer += mBtHandler.getDataIfAvailable();
+
+        if (mMessageFromServer.substring(mMessageFromServer.length() - 1) == ".") {
+            Log("Received full numberplate: " + mMessageFromServer)
+            String numberPlate = mMessageFromServer.substring(0, mMessageFromServer.length() - 1);
+            mPlateText.setText(numberPlate);
+
+            CloudLogs.getInstance().mockLogEdgeToCloud(numberPlate);
         }
     }
 
@@ -62,16 +70,19 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
 
         spinnerHoraris.setAdapter(adapter);
 
-        Handler mainHandler = new Handler(Looper.getMainLooper());
+        mBtHandler = BtHandler.getInstance();
 
-        mainHandler.post(new Runnable() {
+        mainHandler = new Handler(Looper.getMainLooper());
+
+        mainRunnable = new Runnable() {
             @Override
             public void run() {
                 readBtData();
                 mainHandler.postDelayed(this, 1000);
             }
-        });
+        };
 
+        mainHandler.post(mainRunnable);
 
         mCameraBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -135,12 +146,17 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
     }
 
     private void sendSliderValue(byte command, byte value) {
-        mBluetoothConnection.write(command);
-        mBluetoothConnection.write(value);
+        if (!mBtHandler.isConnected()) {
+            return;
+        }
+        
+        mBtHandler.writeData(command);
+        mBtHandler.writeData(value);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mainHandler.removeCallbacks(mainRunnable);
     }
 }

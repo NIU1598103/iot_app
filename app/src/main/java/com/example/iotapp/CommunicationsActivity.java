@@ -22,7 +22,7 @@ public abstract class CommunicationsActivity extends AppCompatActivity {
 
 
     private String mDeviceAddress;
-    protected CommunicationsTask mBluetoothConnection;
+    private BtHandler mBtHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +36,13 @@ public abstract class CommunicationsActivity extends AppCompatActivity {
         mDeviceAddress = newint.getStringExtra(DeviceListActivity.EXTRA_ADDRESS);
 
         // Create a connection to this device
-        mBluetoothConnection = new CommunicationsTask(this, mDeviceAddress);
-        mBluetoothConnection.execute();
+        mBtHandler = BtHandler.getInstance();
+        BluetoothDevice = mBtHandler.getBtDeviceByAddress(mDeviceAddress);
+        BtHandler.getInstance().connectToDevice(BluetoothDevice);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-       mBluetoothConnection.disconnect();
     }
 }
