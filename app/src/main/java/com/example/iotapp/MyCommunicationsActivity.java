@@ -46,6 +46,12 @@ public class MyCommunicationsActivity extends CommunicationsActivity {
         mBleManager.mockReadNumberplate();
         Log("READING BT DATA");
 
+        String receivedData = mBleManager.getDataIfAvailable();
+
+        if (receivedData.isEmpty()) {
+            return;
+        }
+
         mMessageFromServer += mBleManager.getDataIfAvailable();
 
         if (mMessageFromServer.substring(mMessageFromServer.length() - 1).equals(".")) {

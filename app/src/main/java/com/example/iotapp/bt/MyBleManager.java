@@ -20,7 +20,7 @@ public class MyBleManager extends BleManager {
     private static final UUID SERVICE_UUID = UUID.fromString("19b10001-e8f2-537e-4f6c-d104768a1215");
     private static final UUID CHARACTERISTIC_UUID = UUID.fromString("19b10001-e8f2-537e-4f6c-d104768a1215");
 
-    private boolean mConnected;
+    private boolean mConnected = false;
     private boolean dataAvailable = false;
     private String availableData;
 
@@ -77,6 +77,7 @@ public class MyBleManager extends BleManager {
     // Here you may add some high level methods for your device:
     public void connectToDevice(BluetoothDevice device) {
         connect(device)
+                .timeout(10_000)
                 .done(d -> {
                     log(Log.INFO, "Connected to BLE device");
                     mConnected = true;
